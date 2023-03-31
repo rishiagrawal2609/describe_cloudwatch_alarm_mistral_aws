@@ -1,0 +1,35 @@
+---
+version: '2.0'
+
+describe_alarms:
+  type: direct
+  description: "Discribe alarm in AWS"
+  parameter_groups:
+    - label: CloudWatch Alarm Details
+      description: Alarm to be described
+      parameters:
+      - AlarmName
+      - AlarmDescription
+      - StateValue
+
+  input:
+    AlarmName:
+      type: comma_delimited_list
+      label: AlarmNames
+    StateValue:
+      type: string
+      label: StateValue
+      default: 'OK'
+      constraints:
+        - Allowed Values: ['OK','ALARM','INSUFFICIENT_DATA']
+  tasks:
+    Get_Alarm:
+      action: aws_cloudwatch.describe_alarms
+      input:
+        AlarmNames: [<% $.AlarmNames %>]
+        StateValue: [<% $.StateValues %>]
+      publish:
+        AlarmList: [<% StateValue.MetricAlarms[*].AlarmArn %>]
+  output:
+    Alarmlst: [<% AlarmList %>]
+        
